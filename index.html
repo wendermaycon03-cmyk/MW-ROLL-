@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MW Roulette Analyzer PRO</title>
+<style>
+:root{--bg:#070a0e;--panel:#111720;--gold:#e4bd65;--green:#00e6a0;--red:#f04e5e;--muted:#96a1b2}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:white;font-family:Arial,sans-serif}
+header{padding:20px 5%;background:#0c1118;border-bottom:1px solid #29313d;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:900;font-size:21px}.logo span{color:var(--gold)}
+main{max-width:1100px;margin:auto;padding:20px 15px}
+.hero{padding:25px;border-radius:18px;background:linear-gradient(120deg,#1a201c,#111923);border:1px solid #3d3928;margin-bottom:18px}
+.hero small{color:var(--gold);letter-spacing:2px}
+h1{font-size:29px;margin:12px 0}
+p{color:var(--muted);line-height:1.5;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid #28313d;border-radius:14px;padding:17px;margin-bottom:15px}
+.card small{color:var(--muted)}
+.value{font-size:27px;font-weight:bold;margin-top:8px}
+.gold{color:var(--gold)}.green{color:var(--green)}.red{color:var(--red)}
+h2{font-size:17px;margin:0 0 15px}
+.pad{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+button{cursor:pointer;border:0;border-radius:8px;padding:12px 5px;background:#242c38;color:white;font-weight:bold}
+button:hover{filter:brightness(1.3)}
+.number.redbg{background:#c92f43}.number.black{background:#252a32}.number.zero{background:#087b52}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.actions button{border:1px solid #384353}
+.primary{background:var(--green);color:#06130d}
+.history{display:flex;flex-wrap:wrap;gap:7px}
+.ball{width:37px;height:37px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:bold}
+.bar{height:9px;background:#293342;border-radius:20px;overflow:hidden;margin:8px 0 15px}
+.fill{height:100%}
+.row{display:flex;justify-content:space-between;gap:8px;margin:9px 0;font-size:13px}
+.result{background:#101e1a;border:1px solid #285443;padding:16px;border-radius:11px;margin-top:12px}
+input,select{background:#080e15;color:white;border:1px solid #394352;padding:12px;border-radius:8px;width:100%;margin:8px 0}
+.note{font-size:12px;color:#c8b986;background:#201b11;padding:12px;border-radius:9px;line-height:1.5}
+footer{text-align:center;color:#647083;padding:25px;font-size:11px}
+@media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr)}.pad{grid-template-columns:repeat(5,1fr)}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">MW <span>ROULETTE PRO</span></div>
+ <small style="color:#00e6a0">● ONLINE</small>
+</header>
+<main>
+<section class="hero">
+ <small>MW TECHNOLOGY · INTELLIGENCE SYSTEM</small>
+ <h1>ROULETTE ANALYZER PRO</h1>
+ <p>Estatísticas, histórico, radar de padrões e simulação de estratégias em um único painel.</p>
+</section>
+
+<div class="grid">
+ <div class="card"><small>Giros registrados</small><div class="value gold" id="total">0</div></div>
+ <div class="card"><small>Baixos 1–18</small><div class="value green" id="low">0</div></div>
+ <div class="card"><small>Altos 19–36</small><div class="value red" id="high">0</div></div>
+ <div class="card"><small>Zeros</small><div class="value gold" id="zeros">0</div></div>
+ <div class="card"><small>Pares</small><div class="value green" id="even">0</div></div>
+ <div class="card"><small>Ímpares</small><div class="value red" id="odd">0</div></div>
+</div>
+
+<section class="card">
+<h2>01 · Registrar giro</h2>
+<p>Selecione o número que saiu na mesa.</p>
+<div class="pad" id="pad"></div>
+<div class="actions">
+<button onclick="undo()">↶ Desfazer</button>
+<button onclick="clearAll()">Limpar histórico</button>
+</div>
+</section>
+
+<section class="card">
+<h2>02 · Histórico recente</h2>
+<div class="history" id="history">Nenhum giro registrado.</div>
+</section>
+
+<section class="card">
+<h2>03 · RADAR MW</h2>
+<p>Escolha o período de análise.</p>
+<select id="period" onchange="render()">
+<option value="10">Últimos 10 giros</option>
+<option value="20" selected>Últimos 20 giros</option>
+<option value="50">Últimos 50 giros</option>
+<option value="100">Últimos 100 giros</option>
+</select>
+<div id="radar" class="result">Registre os resultados para iniciar.</div>
+</section>
+
+<section class="card">
+<h2>04 · Baixos x Altos</h2>
+<div class="row"><span>Baixos</span><b id="lowPct">0%</b></div>
+<div class="bar"><div id="lowBar" class="fill" style="background:#00e6a0"></div></div>
+<div class="row"><span>Altos</span><b id="highPct">0%</b></div>
+<div class="bar"><div id="highBar" class="fill" style="background:#f04e5e"></div></div>
+<div class="row"><span>Zero</span><b id="zeroPct">0%</b></div>
+<div class="bar"><div id="zeroBar" class="fill" style="background:#e4bd65"></div></div>
+</section>
+
+<section class="card">
+<h2>05 · Dúzias e colunas</h2>
+<div id="dozens"></div>
+<div id="columns"></div>
+</section>
+
+<section class="card">
+<h2>06 · Simulador de banca</h2>
+<p>Simule resultados hipotéticos. Não é uma previsão de lucro.</p>
+<label>Valor inicial (R$)</label>
+<input type="number" id="bank" value="100" min="0" step="0.01">
+<label>Valor por aposta (R$)</label>
+<input type="number" id="stake" value="2" min="0.01" step="0.01">
+<label>Quantidade de apostas simuladas</label>
+<input type="number" id="rounds" value="20" min="1" max="1000">
+<button class="primary" style="width:100%" onclick="simulate()">SIMULAR ESTRATÉGIA</button>
+<div id="simulation" class="result">Configure os valores e simule.</div>
+</section>
+
+<section class="card">
+<h2>07 · Probabilidades matemáticas</h2>
+<div class="row"><span>Baixos (1–18)</span><b>48,65%</b></div>
+<div class="row"><span>Altos (19–36)</span><b>48,65%</b></div>
+<div class="row"><span>Zero</span><b>2,70%</b></div>
+<div class="note">O histórico mostra frequências observadas. Cada giro de uma roleta justa é independente; não há sinal confiável que garanta vantagem no próximo giro.</div>
+</section>
+</main>
+<footer>MW ROULETTE ANALYZER PRO · 2026</footer>
+
+<script>
+const reds=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+let data=[];
+try{
+ const saved=JSON.parse(localStorage.getItem("mwProHistory")||"[]");
+ if(Array.isArray(saved)&&saved.every(n=>Number.isInteger(n)&&n>=0&&n<=36))data=saved;
+}catch(e){data=[]}
+
+const pad=document.getElementById("pad");
+for(let n=0;n<=36;n++){
+ let b=document.createElement("button");
+ b.textContent=n;
+ b.className="number "+(n===0?"zero":reds.has(n)?"redbg":"black");
+ b.onclick=()=>{data.unshift(n);save();render()};
+ pad.appendChild(b);
+}
+function save(){localStorage.setItem("mwProHistory",JSON.stringify(data))}
+function undo(){data.shift();save();render()}
+function clearAll(){
+ if(confirm("Apagar todos os resultados?")){data=[];save();render()}
+}
+function stats(a){
+ return {
+ low:a.filter(n=>n>=1&&n<=18).length,
+ high:a.filter(n=>n>=19).length,
+ zero:a.filter(n=>n===0).length,
+ even:a.filter(n=>n!==0&&n%2===0).length,
+ odd:a.filter(n=>n%2===1).length,
+ dozens:[a.filter(n=>n>=1&&n<=12).length,a.filter(n=>n>=13&&n<=24).length,a.filter(n=>n>=25&&n<=36).length],
+ columns:[a.filter(n=>n!==0&&n%3===1).length,a.filter(n=>n!==0&&n%3===2).length,a.filter(n=>n!==0&&n%3===0).length]
+ }
+}
+function pct(n,t){return t?(n/t*100):0}
+function render(){
+ let s=stats(data),t=data.length;
+ for(let [id,v] of Object.entries({
+ total:t,low:s.low,high:s.high,zeros:s.zero,even:s.even,odd:s.odd
+ }))document.getElementById(id).textContent=v;
+ let h=document.getElementById("history");h.innerHTML="";
+ if(!t)h.textContent="Nenhum giro registrado.";
+ data.slice(0,80).forEach(n=>{
+  let d=document.createElement("div");
+  d.className="ball "+(n===0?"zero":reds.has(n)?"redbg":"black");
+  d.textContent=n;h.appendChild(d);
+ });
+ let p=document.getElementById("period").value;
+ let a=data.slice(0,Number(p)),q=stats(a),z=a.length;
+ let lp=pct(q.low,z),hp=pct(q.high,z),zp=pct(q.zero,z);
+ for(let [id,v] of Object.entries({
+ lowPct:lp.toFixed(1)+"%",highPct:hp.toFixed(1)+"%",zeroPct:zp.toFixed(1)+"%"
+ }))document.getElementById(id).textContent=v;
+ for(let [id,v] of Object.entries({lowBar:lp,highBar:hp,zeroBar:zp}))
+ document.getElementById(id).style.width=v+"%";
+ document.getElementById("dozens").innerHTML="<b>Dúzias</b>"+q.dozens.map((v,i)=>`<div class="row"><span>${i+1}ª dúzia</span><b>${v} (${pct(v,z).toFixed(1)}%)</b></div>`).join("");
+ document.getElementById("columns").innerHTML="<b>Colunas</b>"+q.columns.map((v,i)=>`<div class="row"><span>${i+1}ª coluna</span><b>${v} (${pct(v,z).toFixed(1)}%)</b></div>`).join("");
+ let radar=document.getElementById("radar");
+ if(!z){radar.textContent="Registre os resultados para iniciar.";return}
+ let diff=Math.abs(lp-hp);
+ let msg=z<20?"AMOSTRA PEQUENA":diff<10?"DISTRIBUIÇÃO PRÓXIMA":"DIFERENÇA DE FREQUÊNCIA OBSERVADA";
+ radar.innerHTML=`<b style="color:#e4bd65">${msg}</b><p>${z} giros analisados. Baixos: ${q.low}. Altos: ${q.high}. Zero: ${q.zero}.</p><p>O lado mais frequente no período foi: <b>${q.low===q.high?"EMPATE":q.low>q.high?"BAIXOS":"ALTOS"}</b>.</p><p>Essa diferença descreve o passado e não prevê o próximo giro.</p>`;
+}
+function simulate(){
+ let bank=Number(document.getElementById("bank").value);
+ let stake=Number(document.getElementById("stake").value);
+ let rounds=Number(document.getElementById("rounds").value);
+ let out=document.getElementById("simulation");
+ if(!Number.isFinite(bank)||!Number.isFinite(stake)||!Number.isInteger(rounds)||bank<0||stake<=0||rounds<1||rounds>1000){
+  out.textContent="Confira os valores informados.";return;
+ }
+ let expected=bank-rounds*stake/37;
+ let maxLoss=Math.min(bank,rounds*stake);
+ out.innerHTML=`<b style="color:#e4bd65">SIMULAÇÃO MATEMÁTICA</b><p>Saldo inicial: R$ ${bank.toFixed(2)}</p><p>Exposição máxima planejada: R$ ${maxLoss.toFixed(2)}</p><p>Saldo esperado se apostar em um único lado por giro, com pagamento 1:1: R$ ${Math.max(0,expected).toFixed(2)} (antes de considerar que a banca pode acabar durante a sessão).</p><p>O resultado real pode variar e a banca pode ser perdida.</p>`;
+}
+render();
+</script>
+</body>
+</html>
